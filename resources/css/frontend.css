@@ -1,0 +1,125 @@
+
+/**
+ * Devel module
+ */
+div.devel-module {
+    clear:both;
+    background:#DEDEDE;
+    padding:20px 0px;
+    font-size:1em;
+}
+
+div.devel-module-backend {
+    font-size:1.3em;
+}
+
+div.devel-module-wrapper {
+    background:#fff;
+    border:3px solid #ccc;
+    font-size:1em;
+    color:#333;
+    width:1000px;
+    margin:0 auto;
+}
+
+div.devel-module a {
+    color:#000;
+    text-decoration:underline;
+}
+
+div.devel-module div.devel-heading {
+    background:#eee;
+    font-size:1.4em;
+    font-weight:bold;
+    color:#000;
+    padding:.5em 1em;
+    border-bottom:1px solid #ccc;
+}
+
+div.devel-module div.page-explain {
+    background:#f9f9f9;
+    clear:both;
+    font-style:italic;
+    padding:.5em 1em;
+    border-bottom:1px solid #ccc;
+}
+
+div.devel-module div.devel-page-info {
+    background:#fff;
+    border-bottom:1px solid #ccc;
+}
+
+div.devel-module div.log-entry {
+    clear:both;
+    padding:.5em 1em;
+    border-bottom:1px solid #ccc;
+}
+
+/**
+ * Querylog
+ */
+div.devel-module div.query-log {
+
+}
+
+    div.devel-module div.page-query-color-sample {
+        float:left;
+        width:20px;
+        height:20px;
+        text-indent:-999em;
+        border:1px solid #ccc;
+    }
+
+    div.devel-module div.page-query-color-text {
+        float:left;
+        width:200px;
+        padding-left:10px;
+    }
+
+div.devel-module div.query-log-entry {
+    clear:both;
+    padding:1.2em 1em;
+}
+
+    div.devel-module div.query-log-entry div.query-log-number {
+        float:left;
+        width:5%;
+    }
+
+    div.devel-module div.query-log-entry div.query-log-query {
+        float:left;
+        width:82%;
+        padding-right:5%;
+    }
+
+    div.devel-module div.query-log-entry div.query-log-time {
+        float:left;
+        width:8%;
+    }
+
+    div.devel-module div.query-log-odd {
+        background:#fff;
+        border-bottom:1px solid #ccc;
+    }
+
+    div.devel-module div.query-log-even {
+        background:#f6f6f6;
+        border-bottom:1px solid #ccc;
+    }
+
+    div.devel-module div.query-log-low {
+        background:#FFFFCC;
+    }
+
+    div.devel-module div.query-log-high {
+        background:#ff9e9e;
+    }
+
+div.devel-module div.page-variables-content {
+    max-height: 150px;
+    overflow:auto;
+}
+
+div.devel-clear {
+    clear:both;
+}
