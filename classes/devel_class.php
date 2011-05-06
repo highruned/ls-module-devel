@@ -139,16 +139,12 @@ class Devel_Class
         $output = '';
 
         $backendUrl = '/' . Core_String::normalizeUri(Phpr::$config->get('BACKEND_URL', 'backend'));
-        $currentUrl = isset(Phpr::$request->get_fields['q']) ? Phpr::$request->get_fields['q'] : '';
-        $backendArr = explode("/", $backendUrl);
-        $currentArr = explode("/", $currentUrl);
+        $loginUrl = $backendUrl . 'session/handle/create';
 
-        $is_backend = false;
-        for($i=0; $i<count($backendArr); $i++) {
-            if( !empty($backendArr[$i]) && !empty($currentArr[$i]) && strtolower($backendArr[$i]) == strtolower($currentArr[$i]) ) {
-                $is_backend = true;
-            }
-        }
+        $currentUrl = isset(Phpr::$request->get_fields['q']) ? Phpr::$request->get_fields['q'] : '';
+
+        $is_login = stristr($currentUrl, $loginUrl) === false ? false : true;
+        $is_backend = stristr($currentUrl, $backendUrl) === false ? false : true;
 
         if( !$is_ajax ) {
 
@@ -199,7 +195,7 @@ class Devel_Class
         {
             $output .= 'LSDevel.Logger.log("Assume Page Load Time: ' . number_format($page_load_time, 4) . ' s");' . "\n";
 
-            $output .= 'LSDevel.Logger.log("This information is tracked after Lemonstand has intilized resulting in slightly different values. Please consider completing the installation part 2 <a href="http://forum.lemonstandapp.com/topic/1735-devel-module/" target="_blank">here</a> to track the real data.", "info");' . "\n";
+            $output .= 'LSDevel.Logger.log('. self::safe_parameter('This information is tracked after Lemonstand has intilized resulting in slightly different values. Please consider completing the installation part 2 <a href="http://forum.lemonstandapp.com/topic/1735-devel-module/" target="_blank">here</a> to track the real data.') . ', "info");' . "\n";
         }
         else
         {
@@ -245,7 +241,7 @@ class Devel_Class
         $note .= '<div class="page-query-color-text">- Longer than 1 second</div>';
         $note .= '<div class="devel-clear"></div>';
 
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($note).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($note).', "html");' . "\n";
 
 
         $output .= 'LSDevel.Logger.logQueryTable([' . "\n";
@@ -260,7 +256,7 @@ class Devel_Class
                 $priority = 2;
             }
 
-            $output .= '{ id: '.$rid.', sql: "'.self::safe_parameter($querydata['sql']).'", time: '.$time_str.', priority: '.$priority.' }, ' . "\n";
+            $output .= '{ id: '.$rid.', sql: '.self::safe_parameter($querydata['sql']).', time: '.$time_str.', priority: '.$priority.' }, ' . "\n";
             $rid++;
         }
         if( $rid > 1 ) {
@@ -311,16 +307,16 @@ class Devel_Class
         $output .= 'LSDevel.Logger.startGroup("Other Variables");' . "\n";
 
         $log = '<strong>GET Data</strong><div class="page-variables-content">' . self::recursive_print('Phpr::$request->get_fields', Phpr::$request->get_fields) . '</div>';
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($log).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($log).', "html");' . "\n";
 
         $log = '<strong>POST Data</strong><div class="page-variables-content">' . self::recursive_print('$_POST', $_POST) . '</div>';
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($log).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($log).', "html");' . "\n";
 
         $log = '<strong>SESSION Data</strong><div class="page-variables-content">' . self::recursive_print('$_SESSION', $_SESSION) . '</div>';
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($log).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($log).', "html");' . "\n";
 
         $log = '<strong>COOKIE Data</strong><div class="page-variables-content">' . wordwrap(self::recursive_print('$_COOKIE', $_COOKIE), 115, "<br />", true) . '</div>';
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($log).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($log).', "html");' . "\n";
 
         //$output .= '<div class="page-headers">';
         //$output .= '<strong>Headers</strong><div class="page-variables-content">' . self::recursive_print('getAllHeaders', getAllHeaders());
@@ -332,17 +328,17 @@ class Devel_Class
 
         $defined_func = get_defined_functions();
         $log = '<strong>Defined Functions</strong><div class="page-variables-content">' . self::recursive_print('get_defined_functions', $defined_func['user']) . '</div>';
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($log).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($log).', "html");' . "\n";
 
         $log = '<strong>Include Files</strong><div class="page-variables-content">' . self::recursive_print('get_included_files', get_included_files()) . '</div>';
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($log).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($log).', "html");' . "\n";
 
         //$output .= '<div class="page-interfaces">';
         //$output .= '<strong>Declared Interfaces</strong><div class="page-variables-content">' . self::recursive_print('get_declared_interfaces', get_declared_interfaces());
         //$output .= '</div></div>' . "\n";
 
         $log = '<strong>Declared Classes</strong><div class="page-variables-content">' . self::recursive_print('get_declared_classes', get_declared_classes()) . '</div>';
-        $output .= 'LSDevel.Logger.log("'.self::safe_parameter($log).'", "html");' . "\n";
+        $output .= 'LSDevel.Logger.log('.self::safe_parameter($log).', "html");' . "\n";
 
         $output .= 'LSDevel.Logger.endGroup();' . "\n";
 
@@ -415,11 +411,9 @@ class Devel_Class
 
     public static function safe_parameter($str)
     {
-        //$result = str_replace("(", "\(", $str);
-        //$result = str_replace(")", "\)", $result);
         $result = $str;
-        $result = str_replace('"', '\"', $result);
         $result = preg_replace( '/\s+/', ' ', $result );
+        $result = json_encode($result);
         return $result;
     }
 }

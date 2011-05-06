@@ -1,7 +1,12 @@
 
-var LSDevel = LSDevel || {};
+jQuery(document).ready(function($) {
+    $('div.devel-heading').live('click', function() {
+        $(this).toggleClass('devel-collapsed');
+        $(this).next().toggle();
+    });
+});
 
-//Config
+var LSDevel = LSDevel || {};
 
 LSDevel.Config = {
     enableDebug: true,
@@ -13,6 +18,7 @@ LSDevel.Config = {
 };
 
 LSDevel.Logger = {
+    current: null,
 
     init: function(options) {
         LSDevel.Config = $.extend(LSDevel.Config, options);
@@ -79,12 +85,12 @@ LSDevel.Logger = {
     startGroup: function(titlename) {
         if (LSDevel.Config.enableDebug) {
             if (!LSDevel.Config.hasFirebug) {
-                this.groupHtml(titlename);
+                this.groupStartHtml(titlename);
             } else {
                 try {
                     console.group(titlename);
                 } catch(e) {
-                    this.groupHtml(titlename);
+                    this.groupStartHtml(titlename);
                 }
             }
         }
@@ -119,7 +125,7 @@ LSDevel.Logger = {
                 str = this.htmlEncode(str);
             }
 
-            jQuery(LSDevel.Config.cssclass).append('<div class="log-entry">' + str + '</div>');
+            this.current.append('<div class="log-entry">' + str + '</div>');
 
             /*TODO for objects
             LSDevel.Debug.traceHtml(obj);
@@ -145,21 +151,28 @@ LSDevel.Logger = {
             }
             html += '</div>';
 
-            jQuery(LSDevel.Config.cssclass).append(html);
+            this.current.append(html);
         }
     },
 
-    groupHtml: function(titlename) {
+    groupStartHtml: function(titlename) {
         if (LSDevel.Config.enableDebug) {
             str = String(titlename);
             str = this.htmlEncode(str);
-            jQuery(LSDevel.Config.cssclass).append('<div class="devel-heading">' + str + '</div>');
+
+            var container = jQuery('<div class="devel-heading">' + str + '</div><div class="devel-container" style="display: block"></div>');
+
+            if( !this.current )
+                this.current = jQuery(LSDevel.Config.cssclass);
+
+            container.appendTo(this.current);
+
+            this.current = container.filter('.devel-container');
         }
     },
 
     groupEndHtml: function() {
-        if (LSDevel.Config.enableDebug) {
-
-        }
+        var parent = this.current.parent('.devel-container:first');
+        this.current = parent.length > 0 ? parent : null;
     },
 };
