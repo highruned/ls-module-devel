@@ -80,7 +80,7 @@ class Devel_Class
         $key = md5($sql);
         self::$sql_log[] = array('sql'=>$sql, 'key'=>$key);
 
-        $test = self::get_backtrace();
+        //$test = self::get_backtrace();
         //var_dump($test);
 
         if( !isset(self::$sql_load[$key]) )
