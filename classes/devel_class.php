@@ -29,6 +29,8 @@ class Devel_Class
     protected static $sql_log = array();
     protected static $sql_load = array();
     protected static $sql_total_times = 0;
+    protected static $active_query_key;
+    protected static $previous_query_memory = 0;
 
     public static function create()
     {
@@ -77,20 +79,30 @@ class Devel_Class
 
     public static function on_before_query($sql)
     {
-        $key = md5($sql);
+        $key = uniqid();
         self::$sql_log[] = array('sql'=>$sql, 'key'=>$key);
 
-        //$test = self::get_backtrace();
+        $test = self::get_backtrace();
         //var_dump($test);
 
         if( !isset(self::$sql_load[$key]) )
             self::$sql_load[$key] = array('start'=>0, 'end'=>0);
+        
+            
         self::$sql_load[$key]['start'] = microtime(true);
+        
+        self::$active_query_key = $key;
+        
+        $query_memory = memory_get_peak_usage(true);
+        
+        self::$sql_load[$key]['memory'] = $query_memory - self::$previous_query_memory;
+        
+        self::$previous_query_memory = $query_memory;
     }
 
     public static function on_after_query($sql, $results)
     {
-        $key = md5($sql);
+        $key = self::$active_query_key;
 
         self::$sql_load[$key]['end'] = microtime(true);
         $total_time = self::$sql_load[$key]['end'] - self::$sql_load[$key]['start'];
@@ -250,13 +262,14 @@ class Devel_Class
             $key = $querydata['key'];
             $query_time = ( isset(self::$sql_load[$key]) && self::$sql_load[$key]['start'] > 0 && self::$sql_load[$key]['end'] > 0 ) ? self::$sql_load[$key]['end'] - self::$sql_load[$key]['start'] : -1;
             $time_str = ( $query_time > -1 ) ? number_format($query_time, 4) : '"N/A"';
-
+            $memory_str = self::$sql_load[$key]['memory'] / 1024 / 1024 . ' MB';
+            
             $priority = 1;
             if( $query_time > $average_query ) {
                 $priority = 2;
             }
 
-            $output .= '{ id: '.$rid.', sql: '.self::safe_parameter($querydata['sql']).', time: '.$time_str.', priority: '.$priority.' }, ' . "\n";
+            $output .= '{ id: '.$rid.', sql: '.self::safe_parameter($querydata['sql']).', time: '.$time_str.', memory: "'.$memory_str.'", priority: '.$priority.' }, ' . "\n";
             $rid++;
         }
         if( $rid > 1 ) {
