@@ -52,6 +52,11 @@
 	
 			public static function core_uninitialize()
 			{
+					# set the last query memory
+					$query_memory = memory_get_peak_usage(true);
+					
+					self::$sql_load[self::$active_query_key]['memory'] = $query_memory - self::$previous_query_memory;
+					
 					self::print_footer();
 			}
 	
@@ -74,6 +79,11 @@
 			{
 					self::$page_load['page']['end'] = microtime(true);
 	
+					# set the last query memory
+					$query_memory = memory_get_peak_usage(true);
+					
+					self::$sql_load[self::$active_query_key]['memory'] = $query_memory - self::$previous_query_memory;
+					
 					echo self::print_footer($page, true);
 			}
 	
@@ -88,16 +98,16 @@
 					if( !isset(self::$sql_load[$key]) )
 							self::$sql_load[$key] = array('start'=>0, 'end'=>0);
 					
-							
 					self::$sql_load[$key]['start'] = microtime(true);
 					
+					# set the memory for the LAST key because we need to include hydration
+					if(self::$active_query_key) {
+						$query_memory = memory_get_peak_usage(true);
+						
+						self::$sql_load[self::$active_query_key]['memory'] = $query_memory - self::$previous_query_memory;
+					}
+					
 					self::$active_query_key = $key;
-					
-					$query_memory = memory_get_peak_usage(true);
-					
-					self::$sql_load[$key]['memory'] = $query_memory - self::$previous_query_memory;
-					
-					self::$previous_query_memory = $query_memory;
 			}
 	
 			public static function on_after_query($sql, $results)
@@ -107,10 +117,19 @@
 					self::$sql_load[$key]['end'] = microtime(true);
 					$total_time = self::$sql_load[$key]['end'] - self::$sql_load[$key]['start'];
 					self::$sql_total_times += $total_time;
+					
+					$query_memory = memory_get_peak_usage(true);
+					
+					self::$previous_query_memory = $query_memory;
 			}
 	
 			public static function handle_buffer($buffer)
 			{
+					# set the last query memory
+					$query_memory = memory_get_peak_usage(true);
+					
+					self::$sql_load[self::$active_query_key]['memory'] = $query_memory - self::$previous_query_memory;
+					
 					return self::print_footer($buffer, false);
 			}
 	
@@ -262,7 +281,11 @@
 							$key = $querydata['key'];
 							$query_time = ( isset(self::$sql_load[$key]) && self::$sql_load[$key]['start'] > 0 && self::$sql_load[$key]['end'] > 0 ) ? self::$sql_load[$key]['end'] - self::$sql_load[$key]['start'] : -1;
 							$time_str = ( $query_time > -1 ) ? number_format($query_time, 4) : '"N/A"';
-							$memory_str = self::$sql_load[$key]['memory'] / 1024 / 1024 . ' MB';
+							
+							if(isset(self::$sql_load[$key], self::$sql_load[$key]['memory']))
+								$memory_str = self::$sql_load[$key]['memory'] / 1024 / 1024 . ' MB';
+							else
+								$memory_str = 'Unknown MB';
 							
 							$priority = 1;
 							if( $query_time > $average_query ) {
