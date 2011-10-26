@@ -181,10 +181,6 @@
 	
 			if( !$is_ajax ) {
 	
-				if( $is_backend ) {
-					$output .= '<script type="text/javascript" src="'.root_url('/modules/cms/resources/javascript/jquery_src.js').'"></script>' . "\n";
-				}
-	
 			$output .= '<link rel="stylesheet" type="text/css" href="'.root_url('/modules/devel/resources/css/frontend.css').'" />' . "\n";
 	
 				if( $has_firebug ) {
@@ -283,7 +279,8 @@
 			foreach(self::$sql_log as $querydata) {
 				$key = $querydata['key'];
 				$query_time = ( isset(self::$sql_load[$key]) && self::$sql_load[$key]['start'] > 0 && self::$sql_load[$key]['end'] > 0 ) ? self::$sql_load[$key]['end'] - self::$sql_load[$key]['start'] : -1;
-				$time_str = ( $query_time > -1 ) ? number_format($query_time, 4) : '"N/A"';
+				$single_time_str = ( $query_time > -1 ) ? str_replace(',', '', number_format($query_time, 4)) : '"N/A"';
+				$total_time_str = ( self::$sql_load[$key]['start'] - self::$page_load['boot']['start'] > -1 ) ? str_replace(',', '', number_format(self::$sql_load[$key]['start'] - self::$page_load['boot']['start'], 4)) : '"N/A"';
 				
 				if(isset(self::$sql_load[$key], self::$sql_load[$key]['single_memory']))
 					$single_memory_str = self::$sql_load[$key]['single_memory'] / 1024 / 1024 . ' MB';
@@ -301,7 +298,7 @@
 					$priority = 2;
 				}
 	
-				$output .= '{ id: '.$rid.', sql: '.self::safe_parameter($querydata['sql']).', time: '.$time_str.', single_memory: "'.$single_memory_str.'", total_memory: "'.$total_memory_str.'", priority: '.$priority.' }, ' . "\n";
+				$output .= '{ id: '.$rid.', sql: '.self::safe_parameter($querydata['sql']).', single_time: '.$single_time_str.', total_time: '.$total_time_str.', single_memory: "'.$single_memory_str.'", total_memory: "'.$total_memory_str.'", priority: '.$priority.' }, ' . "\n";
 				$rid++;
 			}
 			if( $rid > 1 ) {
