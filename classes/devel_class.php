@@ -102,9 +102,10 @@
 			
 			# set the memory for the LAST key because we need to include hydration
 			if(self::$active_query_key) {
-			$query_memory = memory_get_peak_usage(true);
+				$query_memory = memory_get_peak_usage(true);
 			
-			self::$sql_load[self::$active_query_key]['memory'] = $query_memory - self::$previous_query_memory;
+				self::$sql_load[self::$active_query_key]['single_memory'] = $query_memory - self::$previous_query_memory;
+				self::$sql_load[self::$active_query_key]['total_memory'] = $query_memory;
 			}
 			
 			self::$active_query_key = $key;
@@ -128,7 +129,8 @@
 			# set the last query memory
 			$query_memory = memory_get_peak_usage(true);
 			
-			self::$sql_load[self::$active_query_key]['memory'] = $query_memory - self::$previous_query_memory;
+			self::$sql_load[self::$active_query_key]['single_memory'] = $query_memory - self::$previous_query_memory;
+			self::$sql_load[self::$active_query_key]['total_memory'] = $query_memory;
 			
 			return self::print_footer($buffer, false);
 		}
@@ -277,22 +279,29 @@
 	
 			$output .= 'LSDevel.Logger.logQueryTable([' . "\n";
 			$rid = 1;
+			
 			foreach(self::$sql_log as $querydata) {
 				$key = $querydata['key'];
 				$query_time = ( isset(self::$sql_load[$key]) && self::$sql_load[$key]['start'] > 0 && self::$sql_load[$key]['end'] > 0 ) ? self::$sql_load[$key]['end'] - self::$sql_load[$key]['start'] : -1;
 				$time_str = ( $query_time > -1 ) ? number_format($query_time, 4) : '"N/A"';
 				
-				if(isset(self::$sql_load[$key], self::$sql_load[$key]['memory']))
-				$memory_str = self::$sql_load[$key]['memory'] / 1024 / 1024 . ' MB';
+				if(isset(self::$sql_load[$key], self::$sql_load[$key]['single_memory']))
+					$single_memory_str = self::$sql_load[$key]['single_memory'] / 1024 / 1024 . ' MB';
 				else
-				$memory_str = 'Unknown MB';
+					$single_memory_str = 'Unknown MB';
 				
+				if(isset(self::$sql_load[$key], self::$sql_load[$key]['total_memory']))
+					$total_memory_str = self::$sql_load[$key]['total_memory'] / 1024 / 1024 . ' MB';
+				else
+					$total_memory_str = 'Unknown MB';
+					
 				$priority = 1;
+				
 				if( $query_time > $average_query ) {
 					$priority = 2;
 				}
 	
-				$output .= '{ id: '.$rid.', sql: '.self::safe_parameter($querydata['sql']).', time: '.$time_str.', memory: "'.$memory_str.'", priority: '.$priority.' }, ' . "\n";
+				$output .= '{ id: '.$rid.', sql: '.self::safe_parameter($querydata['sql']).', time: '.$time_str.', single_memory: "'.$single_memory_str.'", total_memory: "'.$total_memory_str.'", priority: '.$priority.' }, ' . "\n";
 				$rid++;
 			}
 			if( $rid > 1 ) {

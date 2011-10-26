@@ -148,7 +148,7 @@ LSDevel.Logger = {
                     cclass += ' query-log-low';
                 else if( queryObj[i]['priority'] == 3 )
                     cclass += ' query-log-high';
-                html += '<div class="query-log-entry' + cclass + '"><div class="query-log-number">' + queryObj[i]['id'] + '</div><div class="query-log-query">' + queryObj[i]['sql'] + '</div><div class="query-log-time">' + queryObj[i]['time'] + ' s <br />' + queryObj[i]['memory'] + '</div><div class="devel-clear"></div></div>';
+                html += '<div class="query-log-entry' + cclass + '"><div class="query-log-number">' + queryObj[i]['id'] + '</div><div class="query-log-query">' + queryObj[i]['sql'] + '</div><div class="query-log-time">' + queryObj[i]['time'] + ' s <br />Single: ' + queryObj[i]['single_memory'] + '<br />Total: ' + queryObj[i]['total_memory'] + '</div><div class="devel-clear"></div></div>';
             }
             html += '</div>';
 
