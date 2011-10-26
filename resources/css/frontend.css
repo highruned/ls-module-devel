@@ -93,13 +93,13 @@ div.devel-module div.query-log-entry {
 
     div.devel-module div.query-log-entry div.query-log-query {
         float:left;
-        width:78%;
+        width:76%;
         padding-right:5%;
     }
 
     div.devel-module div.query-log-entry div.query-log-time {
         float:left;
-        width:12%;
+        width:14%;
     }
 
     div.devel-module div.query-log-odd {
